@@ -1,6 +1,6 @@
-# 🏥 Offline Biometric Patient Enrollment & Digital Health Record System
+#  Offline Biometric Patient Enrollment & Digital Health Record System
 
-## 📌 Overview
+##  Overview
 
 This project is a **Progressive Web App (PWA)** designed to enable **offline biometric enrollment and patient identification**, along with the creation of a **digital health record** for continuous patient monitoring.
 
@@ -8,7 +8,7 @@ The system is particularly suited for **low-connectivity environments**, allowin
 
 ---
 
-## 🎯 Objectives
+##  Objectives
 
 * Provide a **unique biometric identity** for each patient
 * Enable **offline patient enrollment**
@@ -16,9 +16,8 @@ The system is particularly suited for **low-connectivity environments**, allowin
 * Ensure **data availability in low-resource settings**
 * Support **synchronization with a central server** when connectivity is restored
 
----
 
-## 🚀 Key Features
+##  Key Features
 
 ### 👤 Biometric Enrollment
 
