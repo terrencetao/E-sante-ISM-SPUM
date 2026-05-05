@@ -56,6 +56,4 @@ The system is particularly suited for **low-connectivity environments**, allowin
 3. Compare with local database
 4. Retrieve patient record
 
-
-
 Developed as part of a research and innovation initiative in **AI for healthcare in low-resource settings**.
