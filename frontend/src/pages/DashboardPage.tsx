@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 
 import { OfflineIndicator } from "../components/OfflineIndicator";
 import { getMyAssignment } from "../services/assignmentService";
+import { getCurrentRole, logout } from "../services/authService";
 import type { Assignment } from "../types/api";
 
 export function DashboardPage() {
   const [assignment, setAssignment] = useState<Assignment | null>(null);
+  const role = getCurrentRole();
 
   useEffect(() => {
     getMyAssignment()
@@ -33,8 +35,22 @@ export function DashboardPage() {
         )}
       </section>
       <div className="actions">
-        <Link to="/data-collection" className="btn">Demarrer collecte</Link>
-        <Link to="/sync-status" className="btn">Voir synchronisation</Link>
+        {role === "intervenant_terrain" ? <Link to="/data-collection" className="btn">Demarrer collecte</Link> : null}
+        {role === "intervenant_terrain" ? <Link to="/sync-status" className="btn">Voir synchronisation</Link> : null}
+        {role === "administrator_system" ? <Link to="/admin/users" className="btn">Admin systeme</Link> : null}
+        {role === "administrator_campaign" ? <Link to="/admin/campaign" className="btn">Admin campagne</Link> : null}
+        {role === "administrator_system" || role === "analyste" ? (
+          <Link to="/admin/analytics" className="btn">Analytics</Link>
+        ) : null}
+        <button
+          type="button"
+          onClick={() => {
+            logout();
+            window.location.href = "/login";
+          }}
+        >
+          Se deconnecter
+        </button>
       </div>
     </main>
   );

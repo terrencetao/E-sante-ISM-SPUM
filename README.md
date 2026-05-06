@@ -100,13 +100,19 @@ Ouvrir l'application: http://127.0.0.1:5173
 
 ### 3) Utiliser le systeme (parcours minimal)
 
-1. Se connecter sur la page login avec le compte admin seed.
-2. Creer au moins un utilisateur intervenant via l'API (`POST /api/users`) avec `role_name: intervenant_terrain`.
-3. Creer une zone (`POST /api/zones`), une campagne (`POST /api/campaigns`) et une assignation (`POST /api/campaigns/{campaign_id}/assignments`) avec un utilisateur ayant le role `administrator_campaign`.
-4. Se connecter avec le compte intervenant dans la PWA.
-5. Aller sur "Collecte de donnees", saisir `campaign_id` et `health_area_id`, puis sauvegarder localement.
-6. Couper/remettre le reseau pour observer le mode offline.
-7. Aller sur "Statut de synchronisation" puis lancer "Synchroniser" pour envoyer les donnees vers `/api/sync`.
+1. Se connecter avec le compte seed `admin-system@local.dev` / `1234`.
+2. Aller sur `Admin systeme` (`/admin/users`) et creer:
+	- 1 utilisateur `administrator_campaign`
+	- 2 utilisateurs `intervenant_terrain`
+	- 1 utilisateur `analyste`
+3. Se connecter avec le compte `administrator_campaign` puis aller sur `Admin campagne` (`/admin/campaign`) pour:
+	- creer 2 aires de sante
+	- creer une campagne
+	- assigner chaque intervenant a une aire
+4. Se connecter avec un compte intervenant, consulter l'assignation sur `Dashboard`, puis aller sur `Collecte de donnees` et sauvegarder localement.
+5. Couper/remettre le reseau pour observer le mode offline.
+6. Aller sur `Statut de synchronisation` puis lancer `Synchroniser` pour envoyer les donnees vers `/api/sync`.
+7. Se connecter avec un compte analyste (ou admin systeme) et verifier les resultats sur `Analytics` (`/admin/analytics`).
 
 ### 4) Arret et nettoyage
 

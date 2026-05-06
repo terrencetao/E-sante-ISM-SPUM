@@ -41,12 +41,14 @@ label {
 }
 
 input,
+select,
 textarea,
 button {
   font: inherit;
 }
 
 input,
+select,
 textarea {
   padding: 0.55rem;
   border: 1px solid #aecdc8;
@@ -74,6 +76,23 @@ button:disabled {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  border-bottom: 1px solid #d2e5e1;
+  padding: 0.55rem;
+  font-size: 0.95rem;
 }
 
 .badge {

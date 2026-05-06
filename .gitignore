@@ -37,6 +37,7 @@ build/
 .npm/
 .pnpm-store/
 .vite/
+*.tsbuildinfo
 
 # Kubernetes / local artifacts
 *.tmp
