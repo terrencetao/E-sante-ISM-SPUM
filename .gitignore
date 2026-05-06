@@ -41,6 +41,7 @@ build/
 # Kubernetes / local artifacts
 *.tmp
 *.swp
+.runtime/
 
 # Terraform (future-proof)
 .terraform/

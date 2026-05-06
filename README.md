@@ -54,3 +54,68 @@ The system is particularly suited for **low-connectivity environments**, allowin
 2. Extract embedding
 3. Compare with local database
 4. Retrieve patient record
+
+---
+
+## Quickstart (utilisation locale)
+
+Ce Quickstart permet de lancer le systeme en local et de tester un flux complet:
+- demarrage infrastructure (PostgreSQL)
+- demarrage API backend
+- demarrage PWA frontend
+- connexion et collecte offline
+- synchronisation vers le backend
+
+### 1) Verifier les prerequis
+
+```bash
+./scripts/check-prereqs.sh
+```
+
+Si une commande est manquante, suivre le guide: `doc/PREREQUIS.md`.
+
+### 2) Demarrer tous les systemes
+
+```bash
+./scripts/deploy.sh
+```
+
+Le script demarre automatiquement:
+- le cluster k3d et PostgreSQL
+- le port-forward PostgreSQL sur `localhost:5432`
+- le backend FastAPI sur `http://127.0.0.1:8000`
+- le frontend Vite sur `http://127.0.0.1:5173`
+
+Compte seed cree automatiquement au demarrage backend:
+- Email: admin-system@local.dev
+- PIN: 1234
+
+Verification rapide:
+
+```bash
+curl http://127.0.0.1:8000/api/health
+```
+
+Ouvrir l'application: http://127.0.0.1:5173
+
+### 3) Utiliser le systeme (parcours minimal)
+
+1. Se connecter sur la page login avec le compte admin seed.
+2. Creer au moins un utilisateur intervenant via l'API (`POST /api/users`) avec `role_name: intervenant_terrain`.
+3. Creer une zone (`POST /api/zones`), une campagne (`POST /api/campaigns`) et une assignation (`POST /api/campaigns/{campaign_id}/assignments`) avec un utilisateur ayant le role `administrator_campaign`.
+4. Se connecter avec le compte intervenant dans la PWA.
+5. Aller sur "Collecte de donnees", saisir `campaign_id` et `health_area_id`, puis sauvegarder localement.
+6. Couper/remettre le reseau pour observer le mode offline.
+7. Aller sur "Statut de synchronisation" puis lancer "Synchroniser" pour envoyer les donnees vers `/api/sync`.
+
+### 4) Arret et nettoyage
+
+```bash
+./scripts/cleanup.sh
+```
+
+Pour plus de details:
+- Backend: `backend/README.md`
+- Frontend: `frontend/README.md`
+- API: `doc/API_SPEC.md`
+- Deploiement: `doc/DEPLOYMENT.md`

@@ -1,0 +1,10 @@
+{
+  "name": "E-Sante ISM SPUM",
+  "short_name": "E-Sante",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6fbfa",
+  "theme_color": "#0b5d5a",
+  "description": "PWA offline-first pour collecte terrain",
+  "icons": []
+}
