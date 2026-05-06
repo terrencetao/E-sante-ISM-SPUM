@@ -1,15 +1,30 @@
-# API Spec (Draft)
+# API Spec
 
-## Phase 1
-Aucun endpoint backend deploye en phase 1.
+## Phase 2 - Endpoints disponibles
 
-La phase 1 prepare l'infrastructure DB necessaire aux phases suivantes.
+### Sante
+- GET /api/health
 
-## Endpoints prevus (phase 2+)
+### Authentification
 - POST /api/auth/login
-- GET /api/users
-- POST /api/campaigns
-- POST /api/sync
-- GET /api/analytics/summary
+- POST /api/auth/refresh
+- POST /api/auth/logout
+- POST /api/auth/change-pin
 
-Ce document sera complete en phase 2 lors du scaffold backend.
+### Administration systeme (role administrator_system)
+- POST /api/users
+- GET /api/users
+- PATCH /api/users/{user_id}
+- DELETE /api/users/{user_id}
+- POST /api/users/{user_id}/reset-pin
+
+## Token JWT
+- Type: Bearer
+- Header: Authorization: Bearer <token>
+- Claims principales: sub, role, iat, exp
+
+## Utilisateur seed
+- Email: admin-system@local.dev
+- PIN: 1234
+
+Cet utilisateur est cree automatiquement au demarrage backend si absent.
