@@ -168,3 +168,16 @@ Quand le test est termine:
 ```bash
 ./scripts/cleanup.sh
 ```
+
+## 11. Execution phase 7 (integration et readiness)
+
+Depuis la racine du repo:
+
+```bash
+bash tests/manual/scenario1/run_e2e_api.sh
+bash tests/manual/scenario1/perf_smoke.sh
+bash tests/manual/scenario1/readiness_check.sh
+```
+
+Rapport associe:
+- `doc/implementation-workdir/IMPL-001/PHASE7-REPORT.md`
