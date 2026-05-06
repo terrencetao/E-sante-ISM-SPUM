@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-config
+  namespace: e-sante-ism-spum
+data:
+  init.sql: |
+    CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+    CREATE TABLE IF NOT EXISTS roles (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      name VARCHAR(100) UNIQUE NOT NULL,
+      description TEXT,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    );
+
+    INSERT INTO roles (name, description)
+    VALUES
+      ('administrator_system', 'Administrateur systeme'),
+      ('administrator_campaign', 'Administrateur campagne'),
+      ('intervenant_terrain', 'Intervenant terrain'),
+      ('analyste', 'Analyste')
+    ON CONFLICT (name) DO NOTHING;
