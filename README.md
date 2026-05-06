@@ -80,11 +80,23 @@ Si une commande est manquante, suivre le guide: `doc/PREREQUIS.md`.
 ./scripts/deploy.sh
 ```
 
+Ou avec mode explicite:
+
+```bash
+./scripts/deploy.sh --env dev
+```
+
 Le script demarre automatiquement:
 - le cluster k3d et PostgreSQL
 - le port-forward PostgreSQL sur `localhost:5432`
 - le backend FastAPI sur `http://127.0.0.1:8000`
 - le frontend Vite sur `http://127.0.0.1:5173`
+
+En mode `dev`, l application affiche un panneau `Dev Tools` permettant:
+- switch utilisateur rapide
+- activation/desactivation super utilisateur
+- reset donnees frontend locales
+- reset systeme complet (avec confirmation)
 
 Compte seed cree automatiquement au demarrage backend:
 - Email: admin-system@local.dev
@@ -118,6 +130,12 @@ Ouvrir l'application: http://127.0.0.1:5173
 
 ```bash
 ./scripts/cleanup.sh
+```
+
+Reset systeme en mode dev:
+
+```bash
+./scripts/reset_system.sh
 ```
 
 Pour plus de details:

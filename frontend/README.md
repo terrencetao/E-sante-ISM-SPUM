@@ -9,6 +9,12 @@ cp .env.example .env
 npm run dev
 ```
 
+Pour activer explicitement le mode dev tools:
+
+```bash
+echo "VITE_APP_ENV=dev" >> .env
+```
+
 ## Build
 
 ```bash
@@ -34,3 +40,11 @@ npm run preview
 - Administration systeme: creation utilisateurs + reset PIN
 - Administration campagne: creation zones, campagnes, assignations
 - Analytics: resume des collectes, donnees, conflits, logs d'audit
+
+## IMP-002 - Developer mode
+- Badge global utilisateur/role/environnement visible en continu
+- Panneau Dev Tools (visible seulement si `VITE_APP_ENV=dev`)
+- Switch utilisateur via endpoint dev backend
+- Toggle super utilisateur (`developer_superuser`)
+- Reset local frontend (IndexedDB + localStorage)
+- Reset systeme complet (endpoint dev, confirmation)

@@ -5,6 +5,14 @@ import { listUsers } from "../services/usersService";
 import { createZone, listZones } from "../services/zonesService";
 import type { Campaign, HealthArea, User } from "../types/api";
 
+function toErrorMessage(error: unknown, fallback: string): string {
+  const detail = (error as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
+  if (typeof detail === "string" && detail.length > 0) {
+    return detail;
+  }
+  return fallback;
+}
+
 export function AdminCampaignPage() {
   const [zones, setZones] = useState<HealthArea[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -23,7 +31,10 @@ export function AdminCampaignPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const intervenants = useMemo(() => users.filter((user) => user.role_name === "intervenant_terrain"), [users]);
+  const assignees = useMemo(
+    () => users.filter((user) => user.role_name === "intervenant_terrain" || user.role_name === "developer_superuser"),
+    [users],
+  );
 
   const refresh = async () => {
     const [zonesRows, campaignRows, userRows] = await Promise.all([listZones(), listCampaigns(), listUsers()]);
@@ -45,7 +56,7 @@ export function AdminCampaignPage() {
   };
 
   useEffect(() => {
-    refresh().catch(() => setError("Impossible de charger les donnees campagne"));
+    refresh().catch((error) => setError(toErrorMessage(error, "Impossible de charger les donnees campagne")));
   }, []);
 
   const onCreateZone = async (event: FormEvent) => {
@@ -58,8 +69,8 @@ export function AdminCampaignPage() {
       setZoneDescription("");
       setMessage("Zone creee");
       await refresh();
-    } catch {
-      setError("Creation de zone echouee");
+    } catch (error) {
+      setError(toErrorMessage(error, "Creation de zone echouee"));
     }
   };
 
@@ -73,8 +84,8 @@ export function AdminCampaignPage() {
       setCampaignDescription("");
       setMessage("Campagne creee");
       await refresh();
-    } catch {
-      setError("Creation de campagne echouee");
+    } catch (error) {
+      setError(toErrorMessage(error, "Creation de campagne echouee"));
     }
   };
 
@@ -90,8 +101,8 @@ export function AdminCampaignPage() {
     try {
       await assignCampaign(assignCampaignId, { health_area_id: assignZoneId, user_id: assignUserId });
       setMessage("Assignation creee");
-    } catch {
-      setError("Creation assignation echouee");
+    } catch (error) {
+      setError(toErrorMessage(error, "Creation assignation echouee"));
     }
   };
 
@@ -157,10 +168,10 @@ export function AdminCampaignPage() {
             </select>
           </label>
           <label>
-            Intervenant
+            Intervenant / Superuser
             <select value={assignUserId} onChange={(e) => setAssignUserId(e.target.value)} required>
               <option value="">Selectionner</option>
-              {intervenants.map((user) => (
+              {assignees.map((user) => (
                 <option key={user.id} value={user.id}>
                   {user.email}
                 </option>

@@ -20,13 +20,13 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     token = create_access_token(str(user.id), user.role.name)
-    return TokenResponse(access_token=token)
+    return TokenResponse(access_token=token, email=user.email, role_name=user.role.name)
 
 
 @router.post("/refresh", response_model=TokenResponse)
 def refresh(current_user: User = Depends(get_current_user)) -> TokenResponse:
     token = create_access_token(str(current_user.id), current_user.role.name)
-    return TokenResponse(access_token=token)
+    return TokenResponse(access_token=token, email=current_user.email, role_name=current_user.role.name)
 
 
 @router.post("/logout")

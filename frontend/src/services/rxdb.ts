@@ -44,3 +44,20 @@ export async function getDb() {
   }
   return dbPromise;
 }
+
+export async function resetLocalData(): Promise<void> {
+  if (dbPromise) {
+    const db = await dbPromise;
+    await db.remove();
+    dbPromise = null;
+  }
+
+  if (typeof indexedDB !== "undefined") {
+    indexedDB.deleteDatabase("e_sante_local");
+  }
+
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("current_email");
+  localStorage.removeItem("current_role");
+  localStorage.removeItem("dev_previous_user");
+}

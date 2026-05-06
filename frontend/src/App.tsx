@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
+import { DevToolsPanel } from "./components/DevToolsPanel";
+import { SessionIndicator } from "./components/SessionIndicator";
 import { AdminAnalyticsPage } from "./pages/AdminAnalyticsPage";
 import { AdminCampaignPage } from "./pages/AdminCampaignPage";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
@@ -7,7 +10,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { DataCollectionPage } from "./pages/DataCollectionPage";
 import { LoginPage } from "./pages/LoginPage";
 import { SyncStatusPage } from "./pages/SyncStatusPage";
-import { getCurrentRole } from "./services/authService";
+import { getCurrentRole, onAuthSessionChange } from "./services/authService";
 import type { RoleName } from "./types/api";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
@@ -29,7 +32,25 @@ function RequireRole({ children, allowedRoles }: { children: JSX.Element; allowe
   return children;
 }
 
+function AuthenticatedFrame({ children, sessionVersion }: { children: JSX.Element; sessionVersion: number }) {
+  return (
+    <div key={sessionVersion}>
+      <SessionIndicator />
+      <DevToolsPanel />
+      {children}
+    </div>
+  );
+}
+
 export default function App() {
+  const [sessionVersion, setSessionVersion] = useState(0);
+
+  useEffect(() => {
+    return onAuthSessionChange(() => {
+      setSessionVersion((prev) => prev + 1);
+    });
+  }, []);
+
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
@@ -37,7 +58,9 @@ export default function App() {
         path="/dashboard"
         element={
           <RequireAuth>
-            <DashboardPage />
+            <AuthenticatedFrame sessionVersion={sessionVersion}>
+              <DashboardPage />
+            </AuthenticatedFrame>
           </RequireAuth>
         }
       />
@@ -45,7 +68,9 @@ export default function App() {
         path="/data-collection"
         element={
           <RequireAuth>
-            <DataCollectionPage />
+            <AuthenticatedFrame sessionVersion={sessionVersion}>
+              <DataCollectionPage />
+            </AuthenticatedFrame>
           </RequireAuth>
         }
       />
@@ -53,7 +78,9 @@ export default function App() {
         path="/sync-status"
         element={
           <RequireAuth>
-            <SyncStatusPage />
+            <AuthenticatedFrame sessionVersion={sessionVersion}>
+              <SyncStatusPage />
+            </AuthenticatedFrame>
           </RequireAuth>
         }
       />
@@ -61,9 +88,11 @@ export default function App() {
         path="/admin/users"
         element={
           <RequireAuth>
-            <RequireRole allowedRoles={["administrator_system"]}>
-              <AdminUsersPage />
-            </RequireRole>
+            <AuthenticatedFrame sessionVersion={sessionVersion}>
+              <RequireRole allowedRoles={["administrator_system", "developer_superuser"]}>
+                <AdminUsersPage />
+              </RequireRole>
+            </AuthenticatedFrame>
           </RequireAuth>
         }
       />
@@ -71,9 +100,11 @@ export default function App() {
         path="/admin/campaign"
         element={
           <RequireAuth>
-            <RequireRole allowedRoles={["administrator_campaign"]}>
-              <AdminCampaignPage />
-            </RequireRole>
+            <AuthenticatedFrame sessionVersion={sessionVersion}>
+              <RequireRole allowedRoles={["administrator_campaign", "developer_superuser"]}>
+                <AdminCampaignPage />
+              </RequireRole>
+            </AuthenticatedFrame>
           </RequireAuth>
         }
       />
@@ -81,9 +112,11 @@ export default function App() {
         path="/admin/analytics"
         element={
           <RequireAuth>
-            <RequireRole allowedRoles={["administrator_system", "analyste"]}>
-              <AdminAnalyticsPage />
-            </RequireRole>
+            <AuthenticatedFrame sessionVersion={sessionVersion}>
+              <RequireRole allowedRoles={["administrator_system", "analyste", "developer_superuser"]}>
+                <AdminAnalyticsPage />
+              </RequireRole>
+            </AuthenticatedFrame>
           </RequireAuth>
         }
       />

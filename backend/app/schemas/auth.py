@@ -9,6 +9,8 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    email: EmailStr | None = None
+    role_name: str | None = None
 
 
 class ChangePinRequest(BaseModel):

@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { login } from "../services/authService";
+import { login, setAuthSession } from "../services/authService";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -13,7 +13,8 @@ export function LoginPage() {
     event.preventDefault();
     setError(null);
     try {
-      await login(email, pin);
+      const token = await login(email, pin);
+      setAuthSession(token.access_token, token.email ?? email, token.role_name);
       navigate("/dashboard");
     } catch {
       setError("Identifiants invalides");

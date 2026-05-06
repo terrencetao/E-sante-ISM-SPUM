@@ -16,6 +16,8 @@ class Settings(BaseSettings):
 
     admin_seed_email: str = "admin-system@local.dev"
     admin_seed_pin: str = "1234"
+    dev_superuser_email: str = "dev-superuser@local.dev"
+    dev_superuser_pin: str = "0000"
 
 
 settings = Settings()

@@ -14,4 +14,4 @@ Tu prépare le travail de ton équipe à partir de
 
 - Dire si il y a des incohérences
 - Dire si il manque des informations pour pouvoir traiter la demande
-- Proposer un plan de travail pour chacun des membre de ton équipe et fournir les tickets décrivant les tâches à acomplir dans `doc/implementation-workdir/IMP-<ID>/ticket-<NO_SEQUENTIEL>.md`
+- Proposer un plan de travail pour chacun des membre de ton équipe et fournir les tickets décrivant les tâches à accomplir dans `doc/implementation-workdir/IMP-<SEQ>/`

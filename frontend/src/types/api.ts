@@ -1,9 +1,16 @@
 export type AuthTokenResponse = {
   access_token: string;
   token_type: string;
+  email?: string;
+  role_name?: RoleName;
 };
 
-export type RoleName = "administrator_system" | "administrator_campaign" | "intervenant_terrain" | "analyste";
+export type RoleName =
+  | "administrator_system"
+  | "administrator_campaign"
+  | "intervenant_terrain"
+  | "analyste"
+  | "developer_superuser";
 
 export type JwtPayload = {
   sub: string;
@@ -134,4 +141,23 @@ export type AuditLog = {
   status: string;
   ip_address: string | null;
   timestamp: string;
+};
+
+export type DevSwitchUserResponse = {
+  access_token: string;
+  token_type: string;
+  email: string;
+  role_name: RoleName;
+};
+
+export type DevResetSystemResponse = {
+  status: string;
+  deleted_collected_data: number;
+  deleted_assignments: number;
+  deleted_campaigns: number;
+  deleted_villages: number;
+  deleted_health_areas: number;
+  deleted_conflicts: number;
+  deleted_audit_logs: number;
+  deleted_users: number;
 };

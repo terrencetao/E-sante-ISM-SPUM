@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CLUSTER_NAME="e-sante-ism-spum"
 NAMESPACE="e-sante-ism-spum"
+APP_ENV="${APP_ENV:-dev}"
 RUNTIME_DIR="$ROOT_DIR/.runtime"
 LOG_DIR="$RUNTIME_DIR/logs"
 PID_DIR="$RUNTIME_DIR/pids"
@@ -25,6 +26,45 @@ log() {
 
 warn() {
   echo "[WARN] $1"
+}
+
+usage() {
+  cat <<EOF
+Usage: ./scripts/deploy.sh [--env dev|staging|prod]
+
+Options:
+  --env   Deployment environment (default: dev)
+EOF
+}
+
+parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --env)
+        APP_ENV="${2:-}"
+        shift 2
+        ;;
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      *)
+        echo "[ERROR] Unknown argument: $1"
+        usage
+        exit 1
+        ;;
+    esac
+  done
+
+  case "$APP_ENV" in
+    dev|staging|prod)
+      ;;
+    *)
+      echo "[ERROR] Invalid --env value: $APP_ENV"
+      usage
+      exit 1
+      ;;
+  esac
 }
 
 ensure_cmd() {
@@ -69,6 +109,22 @@ ensure_env_file() {
   fi
 }
 
+set_env_var() {
+  local file_path="$1"
+  local key="$2"
+  local value="$3"
+
+  if [[ ! -f "$file_path" ]]; then
+    return
+  fi
+
+  if grep -q "^${key}=" "$file_path"; then
+    sed -i "s|^${key}=.*$|${key}=${value}|" "$file_path"
+  else
+    echo "${key}=${value}" >> "$file_path"
+  fi
+}
+
 wait_http() {
   local url="$1"
   local label="$2"
@@ -98,6 +154,7 @@ prepare_backend() {
   ensure_cmd python3
 
   ensure_env_file "$BACKEND_DIR"
+  set_env_var "$BACKEND_DIR/.env" "APP_ENV" "$APP_ENV"
 
   if [[ ! -d "$BACKEND_DIR/.venv" ]]; then
     log "Creation du virtualenv backend"
@@ -112,6 +169,7 @@ prepare_frontend() {
   ensure_cmd npm
 
   ensure_env_file "$FRONTEND_DIR"
+  set_env_var "$FRONTEND_DIR/.env" "VITE_APP_ENV" "$APP_ENV"
 
   if [[ ! -d "$FRONTEND_DIR/node_modules" ]]; then
     log "Installation des dependances frontend"
@@ -144,6 +202,9 @@ start_local_services() {
     npm --prefix "$FRONTEND_DIR" run dev -- --host 127.0.0.1 --port 5173
 }
 
+parse_args "$@"
+
+log "Mode de deploiement: $APP_ENV"
 log "Verification des prerequis"
 "$ROOT_DIR/scripts/check-prereqs.sh"
 

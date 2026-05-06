@@ -35,11 +35,11 @@ export function DashboardPage() {
         )}
       </section>
       <div className="actions">
-        {role === "intervenant_terrain" ? <Link to="/data-collection" className="btn">Demarrer collecte</Link> : null}
-        {role === "intervenant_terrain" ? <Link to="/sync-status" className="btn">Voir synchronisation</Link> : null}
-        {role === "administrator_system" ? <Link to="/admin/users" className="btn">Admin systeme</Link> : null}
-        {role === "administrator_campaign" ? <Link to="/admin/campaign" className="btn">Admin campagne</Link> : null}
-        {role === "administrator_system" || role === "analyste" ? (
+        {role === "intervenant_terrain" || role === "developer_superuser" ? <Link to="/data-collection" className="btn">Demarrer collecte</Link> : null}
+        {role === "intervenant_terrain" || role === "developer_superuser" ? <Link to="/sync-status" className="btn">Voir synchronisation</Link> : null}
+        {role === "administrator_system" || role === "developer_superuser" ? <Link to="/admin/users" className="btn">Admin systeme</Link> : null}
+        {role === "administrator_campaign" || role === "developer_superuser" ? <Link to="/admin/campaign" className="btn">Admin campagne</Link> : null}
+        {role === "administrator_system" || role === "analyste" || role === "developer_superuser" ? (
           <Link to="/admin/analytics" className="btn">Analytics</Link>
         ) : null}
         <button

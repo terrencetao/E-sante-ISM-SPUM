@@ -2,12 +2,14 @@ ROLE_ADMIN_SYSTEM = "administrator_system"
 ROLE_ADMIN_CAMPAIGN = "administrator_campaign"
 ROLE_INTERVENANT = "intervenant_terrain"
 ROLE_ANALYSTE = "analyste"
+ROLE_DEV_SUPERUSER = "developer_superuser"
 
 DEFAULT_ROLES = [
     ROLE_ADMIN_SYSTEM,
     ROLE_ADMIN_CAMPAIGN,
     ROLE_INTERVENANT,
     ROLE_ANALYSTE,
+    ROLE_DEV_SUPERUSER,
 ]
 
 RESOURCE_USERS = "users"
@@ -39,6 +41,7 @@ ROLE_PERMISSIONS: dict[str, set[tuple[str, str]]] = {
         (RESOURCE_AUDIT_LOGS, ACTION_READ),
     },
     ROLE_ADMIN_CAMPAIGN: {
+        (RESOURCE_USERS, ACTION_READ),
         (RESOURCE_ZONES, ACTION_CREATE),
         (RESOURCE_ZONES, ACTION_READ),
         (RESOURCE_ZONES, ACTION_UPDATE),

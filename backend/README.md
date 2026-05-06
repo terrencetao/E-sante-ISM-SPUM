@@ -22,3 +22,17 @@ uvicorn app.main:app --reload --port 8000
 - PATCH /api/users/{user_id}
 - DELETE /api/users/{user_id}
 - POST /api/users/{user_id}/reset-pin
+
+## Mode developpeur (IMP-002)
+
+Variables utiles dans `.env`:
+- APP_ENV=dev|staging|prod
+- DEV_SUPERUSER_EMAIL=dev-superuser@local.dev
+- DEV_SUPERUSER_PIN=0000
+
+En `APP_ENV=dev`:
+- le compte `dev-superuser@local.dev` est seed automatiquement
+- RBAC est bypass pour le role `developer_superuser`
+- endpoints dev disponibles:
+	- POST /api/admin/dev/switch-user
+	- POST /api/admin/dev/reset-system

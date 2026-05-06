@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 
 from app.config import settings
-from app.constants import DEFAULT_ROLES, ROLE_ADMIN_SYSTEM
+from app.constants import DEFAULT_ROLES, ROLE_ADMIN_SYSTEM, ROLE_DEV_SUPERUSER
 from app.database import Base, SessionLocal, engine
 from app.models.audit_log import AuditLog  # noqa: F401
 from app.models.campaign import Campaign  # noqa: F401
@@ -113,6 +113,18 @@ def _seed_roles_and_admin() -> None:
                 is_active=True,
             )
             db.add(admin)
+
+        if settings.app_env == "dev":
+            dev_superuser = db.execute(select(User).where(User.email == settings.dev_superuser_email)).scalar_one_or_none()
+            if not dev_superuser:
+                dev_superuser = User(
+                    email=settings.dev_superuser_email,
+                    pin_hash=hash_pin(settings.dev_superuser_pin),
+                    role_id=role_by_name[ROLE_DEV_SUPERUSER].id,
+                    must_change_pin=False,
+                    is_active=True,
+                )
+                db.add(dev_superuser)
 
         db.commit()
     finally:
