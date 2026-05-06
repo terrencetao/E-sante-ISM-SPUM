@@ -1,0 +1,54 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.venv/
+venv/
+backend/.venv/
+backend/venv/
+
+# Node / frontend
+node_modules/
+dist/
+build/
+.npm/
+.pnpm-store/
+.vite/
+
+# Kubernetes / local artifacts
+*.tmp
+*.swp
+
+# Terraform (future-proof)
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Local databases / dumps
+*.sqlite
+*.sqlite3
+*.db
+dump.sql

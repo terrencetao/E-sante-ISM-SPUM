@@ -5,8 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.constants import ACTION_CREATE, ACTION_DELETE, ACTION_READ, ACTION_UPDATE, RESOURCE_USERS
 from app.database import get_db
-from app.middleware.rbac import require_admin_system
+from app.middleware.rbac import require_permission
 from app.models.role import Role
 from app.models.user import User
 from app.schemas.user import ResetPinResponse, UserCreateRequest, UserResponse, UserUpdateRequest
@@ -31,7 +32,7 @@ def _map_user(user: User) -> UserResponse:
 def create_user(
     payload: UserCreateRequest,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin_system),
+    _: User = Depends(require_permission(RESOURCE_USERS, ACTION_CREATE)),
 ) -> ResetPinResponse:
     role = db.execute(select(Role).where(Role.name == payload.role_name)).scalar_one_or_none()
     if not role:
@@ -51,7 +52,7 @@ def create_user(
 
 
 @router.get("", response_model=list[UserResponse])
-def list_users(db: Session = Depends(get_db), _: User = Depends(require_admin_system)) -> list[UserResponse]:
+def list_users(db: Session = Depends(get_db), _: User = Depends(require_permission(RESOURCE_USERS, ACTION_READ))) -> list[UserResponse]:
     users = db.execute(select(User).order_by(User.created_at.desc())).scalars().all()
     return [_map_user(user) for user in users]
 
@@ -61,7 +62,7 @@ def update_user(
     user_id: uuid.UUID,
     payload: UserUpdateRequest,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin_system),
+    _: User = Depends(require_permission(RESOURCE_USERS, ACTION_UPDATE)),
 ) -> UserResponse:
     user = db.get(User, user_id)
     if not user:
@@ -89,7 +90,7 @@ def update_user(
 def delete_user(
     user_id: uuid.UUID,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin_system),
+    _: User = Depends(require_permission(RESOURCE_USERS, ACTION_DELETE)),
 ) -> dict[str, str]:
     user = db.get(User, user_id)
     if not user:
@@ -105,7 +106,7 @@ def delete_user(
 def reset_pin(
     user_id: uuid.UUID,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin_system),
+    _: User = Depends(require_permission(RESOURCE_USERS, ACTION_UPDATE)),
 ) -> ResetPinResponse:
     user = db.get(User, user_id)
     if not user:
