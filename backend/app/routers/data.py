@@ -56,7 +56,7 @@ def create_data(
             CampaignAssignment.health_area_id == payload.health_area_id,
             CampaignAssignment.user_id == current_user.id,
         )
-    ).scalar_one_or_none()
+    ).scalars().first()
     if not assignment:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No assignment for this campaign/zone")
 
