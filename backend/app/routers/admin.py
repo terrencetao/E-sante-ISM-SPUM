@@ -105,10 +105,9 @@ def list_audit_logs(
 def dev_switch_user(
     payload: DevSwitchUserRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    _: User = Depends(get_current_user),
 ) -> DevSwitchUserResponse:
     _ensure_dev_mode()
-    _ensure_dev_operator(current_user)
 
     target_user = db.execute(select(User).where(User.email == payload.target_email)).scalar_one_or_none()
     if not target_user or not target_user.is_active:

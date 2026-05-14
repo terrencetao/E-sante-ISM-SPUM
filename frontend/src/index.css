@@ -57,6 +57,31 @@ body {
   margin-top: 0.55rem;
 }
 
+.app-shell-header {
+  position: sticky;
+  top: 42px;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid #b8d8d2;
+  background: #f5fffb;
+}
+
+.app-shell-brand {
+  font-weight: 700;
+  color: #11483f;
+}
+
+.app-shell-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
 .container {
   max-width: 820px;
   margin: 0 auto;
@@ -109,6 +134,10 @@ button,
   background: #0b5d5a;
   text-decoration: none;
   cursor: pointer;
+}
+
+.btn.secondary {
+  background: #2a7168;
 }
 
 button:disabled {

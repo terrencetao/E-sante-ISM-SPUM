@@ -4,14 +4,17 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.constants import ACTION_CREATE, ACTION_READ, ACTION_UPDATE, RESOURCE_ZONES
+from app.constants import ACTION_CREATE, ACTION_DELETE, ACTION_READ, ACTION_UPDATE, RESOURCE_ZONES
 from app.database import get_db
 from app.middleware.rbac import require_permission
+from app.models.campaign_assignment import CampaignAssignment
+from app.models.collected_data import CollectedData
 from app.models.health_area import HealthArea
 from app.models.village import Village
 from app.schemas.geography import (
     HealthAreaCreateRequest,
     HealthAreaResponse,
+    HealthAreaUpdateRequest,
     VillageCreateRequest,
     VillageResponse,
 )
@@ -48,19 +51,54 @@ def list_zones(
 @router.patch("/{zone_id}", response_model=HealthAreaResponse)
 def update_zone(
     zone_id: uuid.UUID,
-    payload: HealthAreaCreateRequest,
+    payload: HealthAreaUpdateRequest,
     db: Session = Depends(get_db),
     _=Depends(require_permission(RESOURCE_ZONES, ACTION_UPDATE)),
 ) -> HealthAreaResponse:
     zone = db.get(HealthArea, zone_id)
     if not zone:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Zone not found")
-    zone.name = payload.name
-    zone.description = payload.description
+
+    if payload.name is not None and payload.name != zone.name:
+        existing = db.execute(select(HealthArea).where(HealthArea.name == payload.name)).scalar_one_or_none()
+        if existing:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Zone name already exists")
+        zone.name = payload.name
+
+    if payload.description is not None:
+        zone.description = payload.description
+
     db.add(zone)
     db.commit()
     db.refresh(zone)
     return HealthAreaResponse(**zone.__dict__)
+
+
+@router.delete("/{zone_id}")
+def delete_zone(
+    zone_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    _=Depends(require_permission(RESOURCE_ZONES, ACTION_DELETE)),
+) -> dict[str, str]:
+    zone = db.get(HealthArea, zone_id)
+    if not zone:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Zone not found")
+
+    has_data = db.execute(select(CollectedData.id).where(CollectedData.health_area_id == zone_id).limit(1)).scalar_one_or_none()
+    if has_data:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Cannot delete zone with collected data")
+
+    assignments = db.execute(select(CampaignAssignment).where(CampaignAssignment.health_area_id == zone_id)).scalars().all()
+    for assignment in assignments:
+        db.delete(assignment)
+
+    villages = db.execute(select(Village).where(Village.health_area_id == zone_id)).scalars().all()
+    for village in villages:
+        db.delete(village)
+
+    db.delete(zone)
+    db.commit()
+    return {"status": "deleted"}
 
 
 @router.post("/{zone_id}/villages", response_model=VillageResponse)

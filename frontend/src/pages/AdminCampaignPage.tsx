@@ -1,9 +1,18 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
-import { assignCampaign, createCampaign, listCampaigns } from "../services/campaignsService";
+import {
+  assignCampaign,
+  createCampaign,
+  deleteAssignment,
+  deleteCampaign,
+  listAssignments,
+  listCampaigns,
+  updateAssignment,
+  updateCampaign,
+} from "../services/campaignsService";
 import { listUsers } from "../services/usersService";
-import { createZone, listZones } from "../services/zonesService";
-import type { Campaign, HealthArea, User } from "../types/api";
+import { createZone, deleteZone, listZones, updateZone } from "../services/zonesService";
+import type { Assignment, Campaign, HealthArea, User } from "../types/api";
 
 function toErrorMessage(error: unknown, fallback: string): string {
   const detail = (error as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
@@ -16,11 +25,11 @@ function toErrorMessage(error: unknown, fallback: string): string {
 export function AdminCampaignPage() {
   const [zones, setZones] = useState<HealthArea[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [users, setUsers] = useState<User[]>([]);
 
   const [zoneName, setZoneName] = useState("");
   const [zoneDescription, setZoneDescription] = useState("");
-
   const [campaignName, setCampaignName] = useState("");
   const [campaignDescription, setCampaignDescription] = useState("");
 
@@ -37,26 +46,35 @@ export function AdminCampaignPage() {
   );
 
   const refresh = async () => {
-    const [zonesRows, campaignRows, userRows] = await Promise.all([listZones(), listCampaigns(), listUsers()]);
+    const [zonesRows, campaignRows, assignmentRows, userRows] = await Promise.all([
+      listZones(),
+      listCampaigns(),
+      listAssignments(),
+      listUsers(),
+    ]);
     setZones(zonesRows);
     setCampaigns(campaignRows);
+    setAssignments(assignmentRows);
     setUsers(userRows);
+
     if (!assignCampaignId && campaignRows.length > 0) {
       setAssignCampaignId(campaignRows[0].id);
     }
     if (!assignZoneId && zonesRows.length > 0) {
       setAssignZoneId(zonesRows[0].id);
     }
-    if (!assignUserId && userRows.length > 0) {
-      const firstIntervenant = userRows.find((row) => row.role_name === "intervenant_terrain");
-      if (firstIntervenant) {
-        setAssignUserId(firstIntervenant.id);
+    if (!assignUserId) {
+      const assignable = userRows.filter(
+        (user) => user.role_name === "intervenant_terrain" || user.role_name === "developer_superuser",
+      );
+      if (assignable.length > 0) {
+        setAssignUserId(assignable[0].id);
       }
     }
   };
 
   useEffect(() => {
-    refresh().catch((error) => setError(toErrorMessage(error, "Impossible de charger les donnees campagne")));
+    refresh().catch((loadError) => setError(toErrorMessage(loadError, "Impossible de charger les donnees campagne")));
   }, []);
 
   const onCreateZone = async (event: FormEvent) => {
@@ -69,8 +87,8 @@ export function AdminCampaignPage() {
       setZoneDescription("");
       setMessage("Zone creee");
       await refresh();
-    } catch (error) {
-      setError(toErrorMessage(error, "Creation de zone echouee"));
+    } catch (createError) {
+      setError(toErrorMessage(createError, "Creation de zone echouee"));
     }
   };
 
@@ -84,8 +102,8 @@ export function AdminCampaignPage() {
       setCampaignDescription("");
       setMessage("Campagne creee");
       await refresh();
-    } catch (error) {
-      setError(toErrorMessage(error, "Creation de campagne echouee"));
+    } catch (createError) {
+      setError(toErrorMessage(createError, "Creation de campagne echouee"));
     }
   };
 
@@ -101,8 +119,93 @@ export function AdminCampaignPage() {
     try {
       await assignCampaign(assignCampaignId, { health_area_id: assignZoneId, user_id: assignUserId });
       setMessage("Assignation creee");
-    } catch (error) {
-      setError(toErrorMessage(error, "Creation assignation echouee"));
+      await refresh();
+    } catch (assignError) {
+      setError(toErrorMessage(assignError, "Creation assignation echouee"));
+    }
+  };
+
+  const onEditZone = async (zone: HealthArea) => {
+    const nextName = window.prompt("Nouveau nom de la zone", zone.name);
+    if (!nextName) {
+      return;
+    }
+    const nextDescription = window.prompt("Nouvelle description", zone.description ?? "") ?? undefined;
+    try {
+      await updateZone(zone.id, { name: nextName, description: nextDescription });
+      setMessage("Zone modifiee");
+      await refresh();
+    } catch (editError) {
+      setError(toErrorMessage(editError, "Modification de zone echouee"));
+    }
+  };
+
+  const onDeleteZone = async (zone: HealthArea) => {
+    if (!window.confirm(`Supprimer la zone ${zone.name} ?`)) {
+      return;
+    }
+    try {
+      await deleteZone(zone.id);
+      setMessage("Zone supprimee");
+      await refresh();
+    } catch (deleteError) {
+      setError(toErrorMessage(deleteError, "Suppression de zone echouee"));
+    }
+  };
+
+  const onEditCampaign = async (campaign: Campaign) => {
+    const nextName = window.prompt("Nouveau nom de la campagne", campaign.name);
+    if (!nextName) {
+      return;
+    }
+    const nextDescription = window.prompt("Nouvelle description", campaign.description ?? "") ?? undefined;
+    const nextStatus = window.prompt("Nouveau statut", campaign.status) ?? campaign.status;
+    try {
+      await updateCampaign(campaign.id, { name: nextName, description: nextDescription, status: nextStatus });
+      setMessage("Campagne modifiee");
+      await refresh();
+    } catch (editError) {
+      setError(toErrorMessage(editError, "Modification de campagne echouee"));
+    }
+  };
+
+  const onDeleteCampaign = async (campaign: Campaign) => {
+    if (!window.confirm(`Supprimer la campagne ${campaign.name} ?`)) {
+      return;
+    }
+    try {
+      await deleteCampaign(campaign.id);
+      setMessage("Campagne supprimee");
+      await refresh();
+    } catch (deleteError) {
+      setError(toErrorMessage(deleteError, "Suppression de campagne echouee"));
+    }
+  };
+
+  const onEditAssignment = async (assignment: Assignment) => {
+    const nextStatus = window.prompt("Nouveau statut de l'assignation", assignment.status);
+    if (!nextStatus) {
+      return;
+    }
+    try {
+      await updateAssignment(assignment.id, { status: nextStatus });
+      setMessage("Assignation modifiee");
+      await refresh();
+    } catch (editError) {
+      setError(toErrorMessage(editError, "Modification d'assignation echouee"));
+    }
+  };
+
+  const onDeleteAssignment = async (assignment: Assignment) => {
+    if (!window.confirm("Supprimer cette assignation ?")) {
+      return;
+    }
+    try {
+      await deleteAssignment(assignment.id);
+      setMessage("Assignation supprimee");
+      await refresh();
+    } catch (deleteError) {
+      setError(toErrorMessage(deleteError, "Suppression assignation echouee"));
     }
   };
 
@@ -113,7 +216,7 @@ export function AdminCampaignPage() {
       {error ? <p className="error">{error}</p> : null}
 
       <section className="card">
-        <h2>Creer une aire de sante</h2>
+        <h2>Aires de sante (CRUD)</h2>
         <form onSubmit={onCreateZone}>
           <label>
             Nom
@@ -125,10 +228,33 @@ export function AdminCampaignPage() {
           </label>
           <button type="submit">Creer zone</button>
         </form>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {zones.map((zone) => (
+                <tr key={zone.id}>
+                  <td>{zone.name}</td>
+                  <td>{zone.description}</td>
+                  <td className="actions">
+                    <button type="button" onClick={() => onEditZone(zone)}>Modifier</button>
+                    <button type="button" onClick={() => onDeleteZone(zone)}>Supprimer</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section className="card">
-        <h2>Creer une campagne</h2>
+        <h2>Campagnes (CRUD)</h2>
         <form onSubmit={onCreateCampaign}>
           <label>
             Nom
@@ -140,10 +266,35 @@ export function AdminCampaignPage() {
           </label>
           <button type="submit">Creer campagne</button>
         </form>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {campaigns.map((campaign) => (
+                <tr key={campaign.id}>
+                  <td>{campaign.name}</td>
+                  <td>{campaign.description}</td>
+                  <td>{campaign.status}</td>
+                  <td className="actions">
+                    <button type="button" onClick={() => onEditCampaign(campaign)}>Modifier</button>
+                    <button type="button" onClick={() => onDeleteCampaign(campaign)}>Supprimer</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section className="card">
-        <h2>Assigner un intervenant</h2>
+        <h2>Assignations (CRUD)</h2>
         <form onSubmit={onAssign}>
           <label>
             Campagne
@@ -180,6 +331,33 @@ export function AdminCampaignPage() {
           </label>
           <button type="submit">Creer assignation</button>
         </form>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Campagne</th>
+                <th>Zone</th>
+                <th>Intervenant</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {assignments.map((assignment) => (
+                <tr key={assignment.id}>
+                  <td>{assignment.campaign_name ?? assignment.campaign_id}</td>
+                  <td>{assignment.health_area_name ?? assignment.health_area_id}</td>
+                  <td>{assignment.user_email ?? assignment.user_id}</td>
+                  <td>{assignment.status}</td>
+                  <td className="actions">
+                    <button type="button" onClick={() => onEditAssignment(assignment)}>Modifier</button>
+                    <button type="button" onClick={() => onDeleteAssignment(assignment)}>Supprimer</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </main>
   );

@@ -35,7 +35,7 @@ export function DevToolsPanel() {
       setMessage(`Session basculee vers ${target}`);
       navigate("/dashboard", { replace: true });
     } catch {
-      setError("Bascule utilisateur refusee. Connectez-vous avec admin-system ou dev-superuser.");
+      setError("Bascule utilisateur refusee. Verifiez que l'environnement est en mode dev.");
     }
   };
 

@@ -30,3 +30,13 @@ class AnalyticsSummaryResponse(BaseModel):
     total_records: int
     by_campaign: dict[str, int]
     by_health_area: dict[str, int]
+
+
+class MyAssignmentResponse(BaseModel):
+    id: uuid.UUID
+    campaign_id: uuid.UUID
+    campaign_name: str
+    health_area_id: uuid.UUID
+    health_area_name: str
+    status: str
+    assigned_at: datetime

@@ -126,7 +126,26 @@ Ouvrir l'application: http://127.0.0.1:5173
 6. Aller sur `Statut de synchronisation` puis lancer `Synchroniser` pour envoyer les donnees vers `/api/sync`.
 7. Se connecter avec un compte analyste (ou admin systeme) et verifier les resultats sur `Analytics` (`/admin/analytics`).
 
-### 4) Arret et nettoyage
+### 4) Executer les tests
+
+```bash
+./scripts/run-tests.sh
+```
+
+Le script enchaine automatiquement toutes les suites E2E contre l'API en cours d'execution:
+1. Readiness check
+2. Provisionnement utilisateurs
+3. Validation flux principal API (IMP-001)
+4. Validation CRUD / supervision / collecte (IMP-003)
+5. Performance smoke test
+
+Options:
+
+```bash
+./scripts/run-tests.sh --api-url http://monserveur:8000/api --env dev
+```
+
+### 5) Arret et nettoyage
 
 ```bash
 ./scripts/cleanup.sh

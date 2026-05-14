@@ -9,6 +9,11 @@ class HealthAreaCreateRequest(BaseModel):
     description: str | None = None
 
 
+class HealthAreaUpdateRequest(BaseModel):
+    name: str | None = None
+    description: str | None = None
+
+
 class HealthAreaResponse(BaseModel):
     id: uuid.UUID
     name: str

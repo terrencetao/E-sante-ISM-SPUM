@@ -17,7 +17,7 @@ from app.models.health_area import HealthArea  # noqa: F401
 from app.models.role import Role
 from app.models.user import User
 from app.models.village import Village  # noqa: F401
-from app.routers import admin, analytics, auth, campaigns, data, health, sync, users, zones
+from app.routers import admin, analytics, auth, campaigns, data, health, supervision, sync, users, zones
 from app.services.auth_service import decode_token, hash_pin
 
 app = FastAPI(title=settings.app_name)
@@ -39,6 +39,7 @@ app.include_router(data.router, prefix=settings.api_prefix)
 app.include_router(analytics.router, prefix=settings.api_prefix)
 app.include_router(sync.router, prefix=settings.api_prefix)
 app.include_router(admin.router, prefix=settings.api_prefix)
+app.include_router(supervision.router, prefix=settings.api_prefix)
 
 
 @app.middleware("http")

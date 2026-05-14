@@ -23,12 +23,26 @@ export type Assignment = {
   id: string;
   campaign_id: string;
   health_area_id: string;
+  user_id: string;
   status: string;
   assigned_at: string;
+  campaign_name?: string;
+  health_area_name?: string;
+  user_email?: string;
 };
 
 export type AssignmentResponse = {
   assignment: Assignment | null;
+};
+
+export type MyAssignment = {
+  id: string;
+  campaign_id: string;
+  campaign_name: string;
+  health_area_id: string;
+  health_area_name: string;
+  status: string;
+  assigned_at: string;
 };
 
 export type SyncResponse = {

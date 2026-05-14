@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
+import { AppShell } from "./components/AppShell";
 import { DevToolsPanel } from "./components/DevToolsPanel";
 import { SessionIndicator } from "./components/SessionIndicator";
 import { AdminAnalyticsPage } from "./pages/AdminAnalyticsPage";
 import { AdminCampaignPage } from "./pages/AdminCampaignPage";
+import { AdminSupervisionPage } from "./pages/AdminSupervisionPage";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DataCollectionPage } from "./pages/DataCollectionPage";
 import { LoginPage } from "./pages/LoginPage";
-import { SyncStatusPage } from "./pages/SyncStatusPage";
 import { getCurrentRole, onAuthSessionChange } from "./services/authService";
 import type { RoleName } from "./types/api";
 
@@ -37,7 +38,7 @@ function AuthenticatedFrame({ children, sessionVersion }: { children: JSX.Elemen
     <div key={sessionVersion}>
       <SessionIndicator />
       <DevToolsPanel />
-      {children}
+      <AppShell>{children}</AppShell>
     </div>
   );
 }
@@ -75,16 +76,6 @@ export default function App() {
         }
       />
       <Route
-        path="/sync-status"
-        element={
-          <RequireAuth>
-            <AuthenticatedFrame sessionVersion={sessionVersion}>
-              <SyncStatusPage />
-            </AuthenticatedFrame>
-          </RequireAuth>
-        }
-      />
-      <Route
         path="/admin/users"
         element={
           <RequireAuth>
@@ -115,6 +106,18 @@ export default function App() {
             <AuthenticatedFrame sessionVersion={sessionVersion}>
               <RequireRole allowedRoles={["administrator_system", "analyste", "developer_superuser"]}>
                 <AdminAnalyticsPage />
+              </RequireRole>
+            </AuthenticatedFrame>
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/admin/supervision"
+        element={
+          <RequireAuth>
+            <AuthenticatedFrame sessionVersion={sessionVersion}>
+              <RequireRole allowedRoles={["administrator_system", "developer_superuser"]}>
+                <AdminSupervisionPage />
               </RequireRole>
             </AuthenticatedFrame>
           </RequireAuth>

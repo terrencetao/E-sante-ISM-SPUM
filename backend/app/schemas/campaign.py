@@ -10,7 +10,9 @@ class CampaignCreateRequest(BaseModel):
 
 
 class CampaignUpdateRequest(BaseModel):
-    status: str
+    name: str | None = None
+    description: str | None = None
+    status: str | None = None
 
 
 class CampaignResponse(BaseModel):
@@ -28,6 +30,13 @@ class AssignmentCreateRequest(BaseModel):
     user_id: uuid.UUID
 
 
+class AssignmentUpdateRequest(BaseModel):
+    campaign_id: uuid.UUID | None = None
+    health_area_id: uuid.UUID | None = None
+    user_id: uuid.UUID | None = None
+    status: str | None = None
+
+
 class AssignmentResponse(BaseModel):
     id: uuid.UUID
     campaign_id: uuid.UUID
@@ -35,3 +44,9 @@ class AssignmentResponse(BaseModel):
     user_id: uuid.UUID
     status: str
     assigned_at: datetime
+
+
+class AssignmentWithLabelsResponse(AssignmentResponse):
+    campaign_name: str
+    health_area_name: str
+    user_email: str
